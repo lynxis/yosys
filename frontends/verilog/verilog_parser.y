@@ -101,8 +101,7 @@ static void free_attr(std::map<std::string, AstNode*> *al)
 
 %token <string> TOK_STRING TOK_ID TOK_CONST TOK_REALVAL TOK_PRIMITIVE
 %token ATTR_BEGIN ATTR_END DEFATTR_BEGIN DEFATTR_END
-%token TOK_INTERFACE TOK_ENDINTERFACE
-%token TOK_MODULE TOK_ENDMODULE TOK_PARAMETER TOK_LOCALPARAM TOK_DEFPARAM
+%token TOK_MODULE TOK_ENDMODULE TOK_PARAMETER TOK_LOCALPARAM TOK_DEFPARAM TOK_INTERFACE TOK_ENDINTERFACE TOK_MODPORT
 %token TOK_INPUT TOK_OUTPUT TOK_INOUT TOK_WIRE TOK_REG
 %token TOK_INTEGER TOK_SIGNED TOK_ASSIGN TOK_ALWAYS TOK_INITIAL
 %token TOK_BEGIN TOK_END TOK_IF TOK_ELSE TOK_FOR TOK_WHILE TOK_REPEAT
@@ -151,6 +150,8 @@ input: {
 };
 
 design:
+	modport design |
+        interface design |
 	module design |
 	defattr design |
 	task_func_decl design |
@@ -220,6 +221,14 @@ hierarchical_id:
 			*$1 += "." + *$3;
 		delete $3;
 		$$ = $1;
+	};
+interface:
+	 attr TOK_INTERFACE TOK_ID {
+	 } TOK_ENDMODULE {
+	 };
+
+modport:
+        attr TOK_MODPORT {
 	};
 
 module:

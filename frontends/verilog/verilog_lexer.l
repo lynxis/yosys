@@ -137,6 +137,7 @@ YOSYS_NAMESPACE_END
 
 "interface"    { return TOK_INTERFACE; }
 "endinterface" { return TOK_ENDINTERFACE; }
+"modport"      { return TOK_MODPORT; }
 "module"       { return TOK_MODULE; }
 "endmodule"    { return TOK_ENDMODULE; }
 "function"     { return TOK_FUNCTION; }
