@@ -150,7 +150,6 @@ input: {
 };
 
 design:
-	modport design |
         interface design |
 	module design |
 	defattr design |
@@ -223,12 +222,12 @@ hierarchical_id:
 		$$ = $1;
 	};
 interface:
-	 attr TOK_INTERFACE TOK_ID {
-	 } TOK_ENDINTERFACE {
-	 };
+	attr TOK_INTERFACE TOK_ID {
+	} module_para_opt module_args_opt ';' interface_body TOK_ENDINTERFACE {
+	};
 
 modport:
-        attr TOK_MODPORT {
+        TOK_MODPORT TOK_ID module_args_opt {
 	};
 
 module:
@@ -422,6 +421,13 @@ range_or_signed_int:
 		$$->children.push_back(AstNode::mkconst_int(0, true));
 		$$->is_signed = true;
 	};
+
+interface_body:
+	interface_body module_body_stmt |
+	/* the following line makes the generate..endgenrate keywords optional */
+	interface_body gen_stmt |
+	interface_body modport |
+	/* empty */;
 
 module_body:
 	module_body module_body_stmt |
