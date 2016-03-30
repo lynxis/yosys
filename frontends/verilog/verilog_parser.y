@@ -227,7 +227,7 @@ interface:
 	};
 
 modport:
-        TOK_MODPORT TOK_ID module_args_opt {
+        TOK_MODPORT TOK_ID module_args_opt ';' {
 	};
 
 module:
