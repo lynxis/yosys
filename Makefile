@@ -12,7 +12,7 @@ ENABLE_PLUGINS := 1
 ENABLE_READLINE := 1
 ENABLE_VERIFIC := 0
 ENABLE_COVER := 1
-ENABLE_LIBYOSYS := 0
+ENABLE_LIBYOSYS := 1
 
 # other configuration flags
 ENABLE_GPROF := 0
@@ -40,7 +40,7 @@ EXTRA_OBJS =
 EXTRA_TARGETS =
 TARGETS = yosys$(EXE) yosys-config
 
-PRETTY = 1
+PRETTY = 0
 SMALL = 0
 
 all: top-all
@@ -420,12 +420,12 @@ vloghtb: $(TARGETS) $(EXTRA_TARGETS)
 
 install: $(TARGETS) $(EXTRA_TARGETS)
 	$(INSTALL_SUDO) mkdir -p $(DESTDIR)$(BINDIR)
-	$(INSTALL_SUDO) install $(TARGETS) $(DESTDIR)$(BINDIR)
 	$(INSTALL_SUDO) mkdir -p $(DESTDIR)$(DATDIR)
-	$(INSTALL_SUDO) cp -r share/. $(DESTDIR)$(DATDIR)/.
+	$(INSTALL_SUDO) install $(TARGETS) $(DESTDIR)$(BINDIR)
+	$(INSTALL_SUDO) cp -r share/* $(DESTDIR)$(DATDIR)
 ifeq ($(ENABLE_LIBYOSYS),1)
+	$(INSTALL_SUDO) mkdir -p $(DESTDIR)$(LIBDIR)
 	$(INSTALL_SUDO) cp libyosys.so $(DESTDIR)$(LIBDIR)
-	$(INSTALL_SUDO) ldconfig
 endif
 
 uninstall:
