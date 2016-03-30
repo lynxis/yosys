@@ -135,6 +135,8 @@ YOSYS_NAMESPACE_END
 	frontend_verilog_yyerror("Unimplemented compiler directive or undefined macro %s.", yytext);
 }
 
+"interface"    { return TOK_INTERFACE; }
+"endinterface" { return TOK_ENDINTERFACE; }
 "module"       { return TOK_MODULE; }
 "endmodule"    { return TOK_ENDMODULE; }
 "function"     { return TOK_FUNCTION; }
