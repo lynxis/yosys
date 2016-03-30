@@ -224,7 +224,7 @@ hierarchical_id:
 	};
 interface:
 	 attr TOK_INTERFACE TOK_ID {
-	 } TOK_ENDMODULE {
+	 } TOK_ENDINTERFACE {
 	 };
 
 modport:
