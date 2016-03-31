@@ -761,8 +761,8 @@ wire_name:
 			if (port_stubs.count(*$1) != 0) {
 				if (!node->is_input && !node->is_output)
 					frontend_verilog_yyerror("Module port `%s' is neither input nor output.", $1->c_str());
-				if (node->is_reg && node->is_input && !node->is_output)
-					frontend_verilog_yyerror("Input port `%s' is declared as register.", $1->c_str());
+				/*if (node->is_reg && node->is_input && !node->is_output)
+					frontend_verilog_yyerror("Input port `%s' is declared as register.", $1->c_str());*/
 				node->port_id = port_stubs[*$1];
 				port_stubs.erase(*$1);
 			} else {
