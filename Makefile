@@ -26,7 +26,7 @@ SANITIZER =
 # SANITIZER = cfi
 
 
-PREFIX ?= /usr/local
+PREFIX ?= /usr/
 INSTALL_SUDO :=
 
 BINDIR := $(PREFIX)/bin
