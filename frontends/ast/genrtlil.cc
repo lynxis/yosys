@@ -589,7 +589,7 @@ void AstNode::detectSignWidthWorker(int &width_hint, bool &sign_hint, bool *foun
 					// log("---\n");
 					// id_ast->dumpAst(NULL, "decl> ");
 					// dumpAst(NULL, "ref> ");
-					log_error("Failed to detect with of signal access `%s' at %s:%d!\n", str.c_str(), filename.c_str(), linenum);
+					log_error("Failed to detect width of signal access `%s' at %s:%d!\n", str.c_str(), filename.c_str(), linenum);
 				}
 			} else {
 				this_width = id_ast->range_left - id_ast->range_right + 1;
