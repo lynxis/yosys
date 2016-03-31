@@ -312,8 +312,8 @@ module_arg:
 			node->children.push_back($3);
 		if (!node->is_input && !node->is_output)
 			frontend_verilog_yyerror("Module port `%s' is neither input nor output.", $4->c_str());
-		if (node->is_reg && node->is_input && !node->is_output)
-			frontend_verilog_yyerror("Input port `%s' is declared as register.", $4->c_str());
+		/*if (node->is_reg && node->is_input && !node->is_output)
+			frontend_verilog_yyerror("Input port `%s' is declared as register.", $4->c_str());*/
 		ast_stack.back()->children.push_back(node);
 		append_attr(node, $1);
 		delete $4;
