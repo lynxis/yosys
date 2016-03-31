@@ -442,6 +442,7 @@ interface_body:
 module_body:
 	module_body module_body_stmt |
 	/* the following line makes the generate..endgenrate keywords optional */
+	module_body interface |
 	module_body gen_stmt |
 	/* empty */;
 
