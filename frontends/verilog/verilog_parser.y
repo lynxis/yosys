@@ -151,8 +151,8 @@ input: {
 };
 
 design:
-        interface design |
 	module design |
+        interface design |
 	defattr design |
 	task_func_decl design |
 	param_decl design |
@@ -306,14 +306,22 @@ module_arg:
 	} module_arg_opt_assignment |
 	attr wire_type range_or_multirange TOK_ID {
 		AstNode *node = $2;
-		node->str = *$4;
+		/*node->str = *$4;*/
 		node->port_id = ++port_counter;
+		node->str = (*$4);
+		node->str = node->str + std::to_string(node->port_id);
 		if ($3 != NULL)
 			node->children.push_back($3);
 		if (!node->is_input && !node->is_output)
 			frontend_verilog_yyerror("Module port `%s' is neither input nor output.", $4->c_str());
 		/*if (node->is_reg && node->is_input && !node->is_output)
 			frontend_verilog_yyerror("Input port `%s' is declared as register.", $4->c_str());*/
+		if (node->is_reg && node->is_input && !node->is_output) {
+			node->is_reg = 0;
+			node->is_input = 1;
+			node->is_output = 0;
+		}
+
 		ast_stack.back()->children.push_back(node);
 		append_attr(node, $1);
 		delete $4;
