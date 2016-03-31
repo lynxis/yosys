@@ -360,7 +360,7 @@ kernel/version_$(GIT_REV).cc: $(YOSYS_SRC)/Makefile
 			$(CXX) --version | tr ' ()' '\n' | grep '^[0-9]' | head -n1` $(filter -f% -m% -O% -DNDEBUG,$(CXXFLAGS)))\"; }" > kernel/version_$(GIT_REV).cc
 
 yosys-config: misc/yosys-config.in
-	$(P) $(SED) -e 's#@CXXFLAGS@#$(subst -I. -I"$(YOSYS_SRC)",-I"$(DATDIR)/include",$(CXXFLAGS))#;' \
+	$(P) $(SED) -e 's#@CXXFLAGS@#$(subst -I. -I"$(YOSYS_SRC)",-I"/usr/include/yosys",$(CXXFLAGS))#;' \
 			-e 's#@CXX@#$(CXX)#;' -e 's#@LDFLAGS@#$(LDFLAGS)#;' -e 's#@LDLIBS@#$(LDLIBS)#;' \
 			-e 's#@BINDIR@#$(BINDIR)#;' -e 's#@DATDIR@#$(DATDIR)#;' < $< > yosys-config
 	$(Q) chmod +x yosys-config
