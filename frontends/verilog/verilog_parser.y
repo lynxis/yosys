@@ -304,7 +304,7 @@ module_arg:
 		}
 		delete $1;
 	} module_arg_opt_assignment |
-	attr wire_type range TOK_ID {
+	attr wire_type range_or_multirange TOK_ID {
 		AstNode *node = $2;
 		node->str = *$4;
 		node->port_id = ++port_counter;
@@ -554,7 +554,7 @@ task_func_args:
 	task_func_port | task_func_args ',' task_func_port;
 
 task_func_port:
-	attr wire_type range {
+	attr wire_type range_or_multirange {
 		if (albuf) {
 			delete astbuf1;
 			if (astbuf2 != NULL)
@@ -661,7 +661,7 @@ single_defparam_decl:
 	};
 
 wire_decl:
-	attr wire_type range {
+	attr wire_type range_or_multirange {
 		albuf = $1;
 		astbuf1 = $2;
 		astbuf2 = $3;
