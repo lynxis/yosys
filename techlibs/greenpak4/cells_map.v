@@ -5,7 +5,7 @@ module GP_DFFS(input D, CLK, nSET, output reg Q);
 		.SRMODE(1'b1),
 	) _TECHMAP_REPLACE_ (
 		.D(D),
-		.CLK(C),
+		.CLK(CLK),
 		.nSR(nSET),
 		.Q(Q)
 	);
@@ -18,7 +18,7 @@ module GP_DFFR(input D, CLK, nRST, output reg Q);
 		.SRMODE(1'b0),
 	) _TECHMAP_REPLACE_ (
 		.D(D),
-		.CLK(C),
+		.CLK(CLK),
 		.nSR(nRST),
 		.Q(Q)
 	);
@@ -33,8 +33,13 @@ module \$lut (A, Y);
 
   generate
     if (WIDTH == 1) begin
-      GP_2LUT #(.INIT({2'b00, LUT})) _TECHMAP_REPLACE_ (.OUT(Y),
-      	.IN0(A[0]), .IN1(1'b0));
+		if(LUT == 2'b01) begin
+			GP_INV _TECHMAP_REPLACE_ (.OUT(Y), .IN(A[0]) );
+		end
+		else begin
+			GP_2LUT #(.INIT({2'b00, LUT})) _TECHMAP_REPLACE_ (.OUT(Y),
+				.IN0(A[0]), .IN1(1'b0));
+		end
     end else
     if (WIDTH == 2) begin
       GP_2LUT #(.INIT(LUT)) _TECHMAP_REPLACE_ (.OUT(Y),

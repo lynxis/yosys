@@ -136,8 +136,8 @@ struct hash_cstr_ops {
 	static inline unsigned int hash(const char *a) {
 		unsigned int hash = mkhash_init;
 		while (*a)
-			 hash = mkhash(hash, *(a++));
-		 return hash;
+			hash = mkhash(hash, *(a++));
+		return hash;
 	}
 };
 
@@ -156,7 +156,7 @@ struct hash_obj_ops {
 	}
 	template<typename T>
 	static inline unsigned int hash(const T *a) {
-		return a->hash();
+		return a ? a->hash() : 0;
 	}
 };
 

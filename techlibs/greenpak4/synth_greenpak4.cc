@@ -82,6 +82,8 @@ struct SynthGreenPAK4Pass : public Pass {
 		log("        synth -run coarse\n");
 		log("\n");
 		log("    fine:\n");
+		log("        greenpak4_counters\n");
+		log("        clean\n");
 		log("        opt -fast -mux_undef -undriven -fine\n");
 		log("        memory_map\n");
 		log("        opt -undriven -fine\n");
@@ -100,6 +102,9 @@ struct SynthGreenPAK4Pass : public Pass {
 		log("        dfflibmap -liberty +/greenpak4/gp_dff.lib\n");
 		log("        techmap -map +/greenpak4/cells_map.v\n");
 		log("        dffinit -ff GP_DFF Q INIT\n");
+		log("        dffinit -ff GP_DFFR Q INIT\n");
+		log("        dffinit -ff GP_DFFS Q INIT\n");
+		log("        dffinit -ff GP_DFFSR Q INIT\n");
 		log("        clean\n");
 		log("\n");
 		log("    check:\n");
@@ -108,6 +113,7 @@ struct SynthGreenPAK4Pass : public Pass {
 		log("        check -noinit\n");
 		log("\n");
 		log("    json:\n");
+		log("        splitnets                    (temporary workaround for gp4par parser limitation)\n");
 		log("        write_json <file-name>\n");
 		log("\n");
 	}
@@ -186,6 +192,8 @@ struct SynthGreenPAK4Pass : public Pass {
 
 		if (check_label(active, run_from, run_to, "fine"))
 		{
+			Pass::call(design, "greenpak4_counters");
+			Pass::call(design, "clean");
 			Pass::call(design, "opt -fast -mux_undef -undriven -fine");
 			Pass::call(design, "memory_map");
 			Pass::call(design, "opt -undriven -fine");
@@ -199,8 +207,8 @@ struct SynthGreenPAK4Pass : public Pass {
 		if (check_label(active, run_from, run_to, "map_luts"))
 		{
 			if (part == "SLG46140V") Pass::call(design, "nlutmap -luts 0,6,8,2");
-			if (part == "SLG46620V") Pass::call(design, "nlutmap -luts 0,8,16,2");
-			if (part == "SLG46621V") Pass::call(design, "nlutmap -luts 0,8,16,2");
+			if (part == "SLG46620V") Pass::call(design, "nlutmap -luts 2,8,16,2");
+			if (part == "SLG46621V") Pass::call(design, "nlutmap -luts 2,8,16,2");
 			Pass::call(design, "clean");
 		}
 
@@ -209,6 +217,9 @@ struct SynthGreenPAK4Pass : public Pass {
 			Pass::call(design, "dfflibmap -liberty +/greenpak4/gp_dff.lib");
 			Pass::call(design, "techmap -map +/greenpak4/cells_map.v");
 			Pass::call(design, "dffinit -ff GP_DFF Q INIT");
+			Pass::call(design, "dffinit -ff GP_DFFR Q INIT");
+			Pass::call(design, "dffinit -ff GP_DFFS Q INIT");
+			Pass::call(design, "dffinit -ff GP_DFFSR Q INIT");
 			Pass::call(design, "clean");
 		}
 
@@ -221,6 +232,7 @@ struct SynthGreenPAK4Pass : public Pass {
 
 		if (check_label(active, run_from, run_to, "json"))
 		{
+			Pass::call(design, "splitnets");
 			if (!json_file.empty())
 				Pass::call(design, stringf("write_json %s", json_file.c_str()));
 		}
