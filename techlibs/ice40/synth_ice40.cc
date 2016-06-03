@@ -74,8 +74,7 @@ struct SynthIce40Pass : public ScriptPass
 		log("\n");
 	}
 
-	string top_opt = "-auto-top";
-	string blif_file, edif_file;
+	string top_opt, blif_file, edif_file;
 	bool nocarry, nobram, flatten, retime, abc2;
 
 	virtual void clear_flags() YS_OVERRIDE
@@ -92,7 +91,7 @@ struct SynthIce40Pass : public ScriptPass
 
 	virtual void execute(std::vector<std::string> args, RTLIL::Design *design) YS_OVERRIDE
 	{
-		std::string run_from, run_to;
+		string run_from, run_to;
 		clear_flags();
 
 		size_t argidx;
@@ -149,7 +148,7 @@ struct SynthIce40Pass : public ScriptPass
 		if (!design->full_selection())
 			log_cmd_error("This comannd only operates on fully selected designs!\n");
 
-		log_header("Executing SYNTH_ICE40 pass.\n");
+		log_header(design, "Executing SYNTH_ICE40 pass.\n");
 		log_push();
 
 		run_script(design, run_from, run_to);
@@ -215,6 +214,7 @@ struct SynthIce40Pass : public ScriptPass
 				run("abc", "      (only if -abc2)");
 				run("ice40_opt", "(only if -abc2)");
 			}
+			run("techmap -map +/ice40/latches_map.v");
 			run("abc -lut 4");
 			run("clean");
 		}

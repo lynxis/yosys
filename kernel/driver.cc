@@ -213,6 +213,11 @@ int main(int argc, char **argv)
 		printf("    -A\n");
 		printf("        will call abort() at the end of the script. for debugging\n");
 		printf("\n");
+		printf("    -D <header_id>[:<filename>]\n");
+		printf("        dump the design when printing the specified log header to a file.\n");
+		printf("        yosys_dump_<header_id>.il is used as filename if none is specified.\n");
+		printf("        Use 'ALL' as <header_id> to dump at every header.\n");
+		printf("\n");
 		printf("    -V\n");
 		printf("        print version information and exit\n");
 		printf("\n");
@@ -233,7 +238,7 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
-	while ((opt = getopt(argc, argv, "MXAQTVSm:f:Hh:b:o:p:l:L:qv:tds:c:")) != -1)
+	while ((opt = getopt(argc, argv, "MXAQTVSm:f:Hh:b:o:p:l:L:qv:tds:c:D:")) != -1)
 	{
 		switch (opt)
 		{
@@ -314,6 +319,28 @@ int main(int argc, char **argv)
 		case 'c':
 			scriptfile = optarg;
 			scriptfile_tcl = true;
+			break;
+		case 'D':
+			{
+				auto args = split_tokens(optarg, ":");
+				if (!args.empty() && args[0] == "ALL") {
+					if (GetSize(args) != 1) {
+						fprintf(stderr, "Invalid number of tokens in -D ALL.\n");
+						exit(1);
+					}
+					log_hdump_all = true;
+				} else {
+					if (!args.empty() && !args[0].empty() && args[0].back() == '.')
+						args[0].pop_back();
+					if (GetSize(args) == 1)
+						args.push_back("yosys_dump_" + args[0] + ".il");
+					if (GetSize(args) != 2) {
+						fprintf(stderr, "Invalid number of tokens in -D.\n");
+						exit(1);
+					}
+					log_hdump[args[0]].insert(args[1]);
+				}
+			}
 			break;
 		default:
 			fprintf(stderr, "Run '%s -h' for help.\n", argv[0]);

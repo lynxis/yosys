@@ -150,12 +150,11 @@ bool AstNode::simplify(bool const_fold, bool at_zero, bool in_lvalue, int stage,
 
 			while (mem2reg_as_needed_pass2(mem2reg_set, this, NULL)) { }
 
-			for (size_t i = 0; i < children.size(); i++) {
-				if (mem2reg_set.count(children[i]) > 0) {
-					delete children[i];
-					children.erase(children.begin() + (i--));
-				}
-			}
+			vector<AstNode*> delnodes;
+			mem2reg_remove(mem2reg_set, delnodes);
+
+			for (auto node : delnodes)
+				delete node;
 		}
 
 		while (simplify(const_fold, at_zero, in_lvalue, 2, width_hint, sign_hint, in_param)) { }
@@ -540,6 +539,18 @@ bool AstNode::simplify(bool const_fold, bool at_zero, bool in_lvalue, int stage,
 		}
 	}
 
+	if (type == AST_CONDX && children.size() > 0 && children.at(0)->type == AST_CONSTANT) {
+		for (auto &bit : children.at(0)->bits)
+			if (bit == State::Sz || bit == State::Sx)
+				bit = State::Sa;
+	}
+
+	if (type == AST_CONDZ && children.size() > 0 && children.at(0)->type == AST_CONSTANT) {
+		for (auto &bit : children.at(0)->bits)
+			if (bit == State::Sz)
+				bit = State::Sa;
+	}
+
 	if (const_fold && type == AST_CASE)
 	{
 		while (children[0]->simplify(const_fold, at_zero, in_lvalue, stage, width_hint, sign_hint, in_param)) { }
@@ -548,7 +559,7 @@ bool AstNode::simplify(bool const_fold, bool at_zero, bool in_lvalue, int stage,
 			new_children.push_back(children[0]);
 			for (int i = 1; i < GetSize(children); i++) {
 				AstNode *child = children[i];
-				log_assert(child->type == AST_COND);
+				log_assert(child->type == AST_COND || child->type == AST_CONDX || child->type == AST_CONDZ);
 				for (auto v : child->children) {
 					if (v->type == AST_DEFAULT)
 						goto keep_const_cond;
@@ -1125,7 +1136,7 @@ bool AstNode::simplify(bool const_fold, bool at_zero, bool in_lvalue, int stage,
 		AstNode *selected_case = NULL;
 		for (size_t i = 1; i < children.size(); i++)
 		{
-			log_assert(children.at(i)->type == AST_COND);
+			log_assert(children.at(i)->type == AST_COND || children.at(i)->type == AST_CONDX || children.at(i)->type == AST_CONDZ);
 
 			AstNode *this_genblock = NULL;
 			for (auto child : children.at(i)->children) {
@@ -2594,6 +2605,23 @@ bool AstNode::mem2reg_check(pool<AstNode*> &mem2reg_set)
 	return true;
 }
 
+void AstNode::mem2reg_remove(pool<AstNode*> &mem2reg_set, vector<AstNode*> &delnodes)
+{
+	log_assert(mem2reg_set.count(this) == 0);
+
+	if (mem2reg_set.count(id2ast))
+		id2ast = nullptr;
+
+	for (size_t i = 0; i < children.size(); i++) {
+		if (mem2reg_set.count(children[i]) > 0) {
+			delnodes.push_back(children[i]);
+			children.erase(children.begin() + (i--));
+		} else {
+			children[i]->mem2reg_remove(mem2reg_set, delnodes);
+		}
+	}
+}
+
 // actually replace memories with registers
 bool AstNode::mem2reg_as_needed_pass2(pool<AstNode*> &mem2reg_set, AstNode *mod, AstNode *block)
 {
@@ -2984,7 +3012,7 @@ AstNode *AstNode::eval_const_function(AstNode *fcall)
 			for (size_t i = 1; i < stmt->children.size(); i++)
 			{
 				bool found_match = false;
-				log_assert(stmt->children.at(i)->type == AST_COND);
+				log_assert(stmt->children.at(i)->type == AST_COND || stmt->children.at(i)->type == AST_CONDX || stmt->children.at(i)->type == AST_CONDZ);
 
 				if (stmt->children.at(i)->children.front()->type == AST_DEFAULT) {
 					sel_case = stmt->children.at(i)->children.back();

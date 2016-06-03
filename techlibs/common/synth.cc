@@ -41,6 +41,10 @@ struct SynthPass : public ScriptPass
 		log("    -top <module>\n");
 		log("        use the specified module as top module (default='top')\n");
 		log("\n");
+		log("    -flatten\n");
+		log("        flatten the design before synthesis. this will pass '-auto-top' to\n");
+		log("        'hierarchy' if no top module is specified.\n");
+		log("\n");
 		log("    -encfile <file>\n");
 		log("        passed to 'fsm_recode' via 'fsm'\n");
 		log("\n");
@@ -68,8 +72,8 @@ struct SynthPass : public ScriptPass
 		log("\n");
 	}
 
-	std::string top_module, fsm_opts, memory_opts;
-	bool noalumacc, nofsm, noabc;
+	string top_module, fsm_opts, memory_opts;
+	bool flatten, noalumacc, nofsm, noabc;
 
 	virtual void clear_flags() YS_OVERRIDE
 	{
@@ -77,6 +81,7 @@ struct SynthPass : public ScriptPass
 		fsm_opts.clear();
 		memory_opts.clear();
 
+		flatten = false;
 		noalumacc = false;
 		nofsm = false;
 		noabc = false;
@@ -109,6 +114,10 @@ struct SynthPass : public ScriptPass
 				}
 				continue;
 			}
+			if (args[argidx] == "-flatten") {
+				flatten = true;
+				continue;
+			}
 			if (args[argidx] == "-nofsm") {
 				nofsm = true;
 				continue;
@@ -132,7 +141,7 @@ struct SynthPass : public ScriptPass
 		if (!design->full_selection())
 			log_cmd_error("This comannd only operates on fully selected designs!\n");
 
-		log_header("Executing SYNTH pass.\n");
+		log_header(design, "Executing SYNTH pass.\n");
 		log_push();
 
 		run_script(design, run_from, run_to);
@@ -147,9 +156,12 @@ struct SynthPass : public ScriptPass
 			if (help_mode) {
 				run("hierarchy -check [-top <top>]");
 			} else {
-				if (top_module.empty())
-					run(stringf("hierarchy -check"));
-				else
+				if (top_module.empty()) {
+					if (flatten)
+						run("hierarchy -check -auto-top");
+					else
+						run("hierarchy -check");
+				} else
 					run(stringf("hierarchy -check -top %s", top_module.c_str()));
 			}
 		}
@@ -157,6 +169,8 @@ struct SynthPass : public ScriptPass
 		if (check_label("coarse"))
 		{
 			run("proc");
+			if (help_mode || flatten)
+				run("flatten", "(if -flatten)");
 			run("opt_expr");
 			run("opt_clean");
 			run("check");

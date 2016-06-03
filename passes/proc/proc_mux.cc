@@ -250,6 +250,9 @@ void append_pmux(RTLIL::Module *mod, const RTLIL::SigSpec &signal, const std::ve
 	log_assert(last_mux_cell != NULL);
 	log_assert(when_signal.size() == last_mux_cell->getPort("\\A").size());
 
+	if (when_signal == last_mux_cell->getPort("\\A"))
+		return;
+
 	RTLIL::SigSpec ctrl_sig = gen_cmp(mod, signal, compare, sw);
 	log_assert(ctrl_sig.size() == 1);
 	last_mux_cell->type = "$pmux";
@@ -391,7 +394,7 @@ struct ProcMuxPass : public Pass {
 	}
 	virtual void execute(std::vector<std::string> args, RTLIL::Design *design)
 	{
-		log_header("Executing PROC_MUX pass (convert decision trees to multiplexers).\n");
+		log_header(design, "Executing PROC_MUX pass (convert decision trees to multiplexers).\n");
 
 		extra_args(args, 1, design);
 
